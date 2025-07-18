@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Scientific Calculator</title>
+    <style>
+        body {
+            font-family: 'Orbitron', sans-serif;
+            background-color: #121212;
+            margin: 0;
+            padding: 0;
+            color: #ffffff;
+        }
+
+        nav {
+            background: rgba(31, 31, 31, 0.9);
+            padding: 15px 20px;
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 0 15px rgba(240, 123, 143, 0.5);
+            position: fixed;
+            width: 100%;
+            z-index: 10;
+            top: 0;
+        }
+
+        nav a {
+            color: rgb(240, 123, 143);
+            text-decoration: none;
+            font-size: 18px;
+            font-weight: bold;
+            transition: color 0.3s, transform 0.3s;
+        }
+
+        nav a:hover {
+            color: #ffffff;
+            transform: scale(1.1);
+        }
+
+        .container {
+            display: flex;
+            flex-direction: row; 
+            justify-content: space-around; 
+            align-items: center;  
+            margin-top: 80px; 
+            padding: 20px; 
+        }
+
+        .calculator, .canvas-container {
+            background: linear-gradient(135deg, #1e1e1e, #333333);
+            border-radius: 15px;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.7);
+            padding: 20px;
+            width: 100%;
+            max-width: 450px;  
+            margin: 10px;  
+        }
+
+        .calculator h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #00d1b2;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+        }
+
+        .calculator input {
+            width: 90%;
+            height: 60px;
+            font-size: 28px;
+            margin-bottom: 10px;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            text-align: right;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+        }
+
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+
+        button {
+            background-color: rgba(0, 255, 255, 0.1);
+            border: none;
+            padding: 15px;
+            font-size: 18px;
+            color: #ffffff;
+            cursor: pointer;
+            border-radius: 10px;
+            transition: background-color 0.3s, transform 0.1s;
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+        }
+
+        button:hover {
+            background-color: rgba(0, 255, 255, 0.3);
+        }
+
+        button:active {
+            background-color: rgba(0, 255, 255, 0.5);
+            transform: translateY(2px);
+        }
+
+        .function-button {
+            background-color: #d9534f;
+        }
+
+        .function-button:hover {
+            background-color: #c9302c;
+        }
+
+        #equals {
+            grid-column: span 4;
+            background-color: #5bc0de;
+            font-size: 20px;
+        }
+
+        #equals:hover {
+            background-color: #31b0d5;
+        }
+
+        .clear-canvas-btn {
+            margin-top: 15px;
+            background-color: #d9534f;
+            padding: 10px 20px;
+            font-size: 18px;
+            color: #ffffff;
+            cursor: pointer;
+            border-radius: 8px;
+            border: none;
+            transition: background-color 0.3s;
+            box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+        }
+
+        .clear-canvas-btn:hover {
+            background-color: #c9302c;
+        }
+
+        .video-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        #bg-video {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            min-width: 100%;
+            min-height: 100%;
+            width: auto;
+            height: auto;
+            object-fit: cover;
+            z-index: -1;
+        }
+
+        canvas {
+            border: 2px solid #00d1b2;
+            background-color: rgba(255, 255, 255, 0.1);
+            width: 100%;
+            height: 100%;
+        }
+
+        .canvas-container {
+            height: 400px; 
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+    </style>
+</head>
+<body>
+    
+    <nav>
+        <a href="/">HOME</a>
+        <a href="/byte">BYTE</a>
+        <a href="/calculator">Scientific Calculator</a>
+        <a href="/todo">To-Do List</a>
+    </nav>
+
+    <div class="video-container">
+        <video autoplay muted loop playsinline id="bg-video">
+            <source src="{{ url_for('static', filename='clacbg.mp4') }}" type="video/mp4">
+            Your browser does not support HTML5 video.
+        </video>
+    </div>
+
+    <div class="container">
+        <div class="calculator">
+            <h2>Advanced Scientific Calculator</h2>
+            <input type="text" id="display" disabled>
+            <div class="buttons">
+                <button onclick="clearDisplay()">C</button>
+                <button onclick="deleteLast()">DEL</button>
+                <button class="function-button" onclick="appendOperator('/')">÷</button>
+                <button class="function-button" onclick="appendOperator('*')">×</button>
+                <button onclick="appendNumber('7')">7</button>
+                <button onclick="appendNumber('8')">8</button>
+                <button onclick="appendNumber('9')">9</button>
+                <button class="function-button" onclick="appendOperator('-')">−</button>
+                <button onclick="appendNumber('4')">4</button>
+                <button onclick="appendNumber('5')">5</button>
+                <button onclick="appendNumber('6')">6</button>
+                <button class="function-button" onclick="appendOperator('+')">+</button>
+                <button onclick="appendNumber('1')">1</button>
+                <button onclick="appendNumber('2')">2</button>
+                <button onclick="appendNumber('3')">3</button>
+                <button class="function-button" onclick="appendFunction('Math.sqrt(')">√</button>
+                <button onclick="appendNumber('0')">0</button>
+                <button onclick="appendOperator('.')">.</button>
+                <button class="function-button" onclick="appendFunction('Math.sin(')">sin</button>
+                <button class="function-button" onclick="appendFunction('Math.cos(')">cos</button>
+                <button class="function-button" onclick="appendFunction('Math.tan(')">tan</button>
+                <button class="function-button" onclick="appendFunction('Math.asin(')">asin</button>
+                <button class="function-button" onclick="appendFunction('Math.acos(')">acos</button>
+                <button class="function-button" onclick="appendFunction('Math.atan(')">atan</button>
+                <button class="function-button" onclick="appendFunction('Math.log(')">log</button>
+                <button class="function-button" onclick="appendFunction('Math.exp(')">exp</button>
+                <button class="function-button" onclick="appendFunction('!')">n!</button>
+                <button onclick="appendFunction('(')"> ( </button>
+                <button onclick="appendFunction(')')"> ) </button>
+                <button id="equals" onclick="calculate()">=</button>
+            </div>
+        </div>
+
+        <div class="canvas-container">
+            <canvas id="drawingCanvas"></canvas>
+            <button class="clear-canvas-btn" onclick="clearCanvas()">Clear Canvas</button>
+        </div>
+    </div>
+
+    <script>
+        function clearDisplay() {
+            document.getElementById('display').value = '';
+        }
+
+        function deleteLast() {
+            let display = document.getElementById('display').value;
+            document.getElementById('display').value = display.slice(0, -1);
+        }
+
+        function appendNumber(number) {
+            document.getElementById('display').value += number;
+        }
+
+        function appendOperator(operator) {
+            document.getElementById('display').value += operator;
+        }
+
+        function appendFunction(func) {
+            document.getElementById('display').value += func;
+        }
+
+        function factorial(n) {
+            return n ? n * factorial(n - 1) : 1;
+        }
+
+        function calculate() {
+            try {
+                const result = eval(document.getElementById('display').value);
+                document.getElementById('display').value = result;
+            } catch (error) {
+                document.getElementById('display').value = 'Error';
+            }
+        }
+
+        const canvas = document.getElementById('drawingCanvas');
+        const ctx = canvas.getContext('2d');
+
+        let drawing = false;
+
+        function resizeCanvas() {
+            canvas.width = canvas.offsetWidth;
+            canvas.height = canvas.offsetHeight;
+        }
+
+        function startDrawing(event) {
+            drawing = true;
+            ctx.beginPath();
+            ctx.moveTo(getMousePosition(event).x, getMousePosition(event).y);
+        }
+
+        function draw(event) {
+            if (!drawing) return;
+            ctx.lineTo(getMousePosition(event).x, getMousePosition(event).y);
+            ctx.strokeStyle = '#00d1b2';
+            ctx.lineWidth = 5;
+            ctx.stroke();
+        }
+
+        function stopDrawing() {
+            drawing = false;
+            ctx.closePath();
+        }
+
+        function clearCanvas() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+
+        function getMousePosition(event) {
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            return {
+                x: (event.clientX - rect.left) * scaleX,
+                y: (event.clientY - rect.top) * scaleY
+            }
+        }
+
+        canvas.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            startDrawing(e.touches[0]);
+        });
+
+        canvas.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+            draw(e.touches[0]);
+        });
+
+        canvas.addEventListener('touchend', stopDrawing);
+
+        window.addEventListener('resize', resizeCanvas);
+        canvas.addEventListener('mousedown', startDrawing);
+        canvas.addEventListener('mousemove', draw);
+        canvas.addEventListener('mouseup', stopDrawing);
+        canvas.addEventListener('mouseout', stopDrawing);
+
+        resizeCanvas();
+    </script>
+</body>
+</html>
