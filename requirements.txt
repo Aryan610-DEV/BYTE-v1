@@ -1,0 +1,6 @@
+Flask
+Pillow
+requests
+easyocr
+numpy
+gunicorn
